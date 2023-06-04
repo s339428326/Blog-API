@@ -6,14 +6,14 @@ export interface IAppError {
 }
 
 class AppError extends Error implements IAppError {
-  constructor(
-    message: string,
-    public statusCode: number,
-    public status: string,
-    public isOperational: boolean = true
-  ) {
+  //readonly
+  readonly status: string;
+  readonly isOperational: boolean;
+
+  constructor(message: string, public statusCode: number) {
     super(message);
     this.status = `${this.statusCode}`.startsWith('4') ? 'fail' : 'error';
+    this.isOperational = true;
   }
 }
 

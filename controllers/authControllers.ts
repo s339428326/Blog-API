@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 
+const catchAsync = require('../utils/catchAsync');
 const User = require('../models/userModel');
 
 /* Feature */
@@ -9,12 +10,6 @@ const User = require('../models/userModel');
 */
 
 /* Feature */
-
-//until
-const catchAsync =
-  (fn: Function) => (req: Request, res: Response, next: NextFunction) => {
-    fn(req, res, next).catch(next);
-  };
 
 //
 exports.singUp = catchAsync(async (req: Request, res: Response) => {
