@@ -5,12 +5,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const morgan = require('morgan');
-const userRouter = require("./Routes/userRoutes");
+const userRouter = require('./Routes/userRoutes');
+const globeErrorHandler = require('./controllers/errorControllers');
 const app = (0, express_1.default)();
-app.use(morgan('dev'));
+if (process.env.NODE_ENV === 'development') {
+    app.use(morgan('dev'));
+}
 app.use(express_1.default.json());
-app.get('/', (_req, res) => {
-    res.send('<h1>Blog API</h1>');
-});
+//router
 app.use('/api/v1/users', userRouter);
+//Error
+app.use(globeErrorHandler);
 module.exports = app;

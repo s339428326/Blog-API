@@ -5,7 +5,7 @@ export interface IAppError {
   isOperational: boolean;
 }
 
-class AppError extends Error implements IAppError {
+class AppError extends Error {
   //readonly
   readonly status: string;
   readonly isOperational: boolean;
