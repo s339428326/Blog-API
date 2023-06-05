@@ -1,6 +1,6 @@
 import { ErrorRequestHandler } from 'express';
 
-const AppError = require('../utils/AppError');
+import AppError from '../utils/AppError';
 
 const sendError: ErrorRequestHandler = (err, req, res, next) => {
   if (req.originalUrl.startsWith('/api')) {

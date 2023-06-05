@@ -7,7 +7,7 @@ interface IUser {
   name: string;
   email: string;
   password: string;
-  confirmPassword: string;
+  confirmPassword: string | undefined;
 }
 
 const userSchema = new mongoose.Schema<IUser>(
@@ -50,6 +50,12 @@ const userSchema = new mongoose.Schema<IUser>(
   }
 );
 
+userSchema.pre<IUser>('save', function (next) {
+  console.log(this.password);
+  this.confirmPassword = undefined; // 設定undefined 不會紀錄於mongoDB
+  next();
+});
+
 const User = mongoose.model<IUser>('User', userSchema);
 
-module.exports = User;
+export default User;

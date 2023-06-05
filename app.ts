@@ -1,7 +1,6 @@
 import express from 'express';
 
-const morgan = require('morgan');
-
+import morgan from 'morgan';
 const userRouter = require('./Routes/userRoutes');
 const globeErrorHandler = require('./controllers/errorControllers');
 
@@ -19,4 +18,4 @@ app.use('/api/v1/users', userRouter);
 //Error
 app.use(globeErrorHandler);
 
-module.exports = app;
+export default app;
