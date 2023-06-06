@@ -14,7 +14,9 @@ class AppError extends Error {
     super(message);
     this.status = `${this.statusCode}`.startsWith('4') ? 'fail' : 'error';
     this.isOperational = true;
+    //屏蔽此錯誤stack的訊息
+    Error.captureStackTrace(this, this.constructor);
   }
 }
 
-module.exports = AppError;
+export default AppError;

@@ -1,9 +1,12 @@
 import express from 'express';
+import morgan from 'morgan';
+import cors from 'cors';
+import helmet from 'helmet';
+import limiter from './utils/limiter';
 
-const morgan = require('morgan');
+import userRouter from './Routes/userRoutes';
 
-const userRouter = require('./Routes/userRoutes');
-const globeErrorHandler = require('./controllers/errorControllers');
+import globeErrorHandler from './controllers/errorControllers';
 
 const app = express();
 
@@ -13,10 +16,15 @@ if (process.env.NODE_ENV === 'development') {
 
 app.use(express.json());
 
+app.use(helmet());
+app.use(cors());
+
+app.use(limiter);
+
 //router
 app.use('/api/v1/users', userRouter);
 
 //Error
 app.use(globeErrorHandler);
 
-module.exports = app;
+export default app;

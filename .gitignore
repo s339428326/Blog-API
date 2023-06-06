@@ -2,4 +2,8 @@ node_modules/
 
 DateBase-Model.png
 package-lock.json
-*.env
+.env
+.env.development
+
+
+dist

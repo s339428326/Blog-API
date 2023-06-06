@@ -1,48 +1,101 @@
 import { Request, Response, NextFunction } from 'express';
-import { IAppError } from '../utils/AppError';
 
-const AppError = require('../utils/AppError');
-const catchAsync = require('../utils/catchAsync');
-const User = require('../models/userModel');
+import AppError from '../utils/AppError';
+import catchAsync from '../utils/catchAsync';
+import { singToken } from '../utils/JWTHandler';
 
-// exports.singUp = async (req: Request, res: Response, next: NextFunction) => {
-//   try {
-//     const user = await User.create(req.body);
+import User, { IUser } from '../models/userModel';
 
-//     res.status(200).json({
-//       result: {
-//         // data,
-//         user,
-//       },
-//     });
-//   } catch (error) {
-//     console.log(`[schema build Error]:${error}`);
-//     const newError = new AppError('Test msg', 404);
-//     console.log('newError obj:', newError);
-//     return next(newError);
-//   }
-// };
+const sendJwtToClient = (
+  user: IUser,
+  statusCode: number,
+  req: Request,
+  res: Response
+) => {
+  const token = singToken(user.id);
+  const oneDayMillisecond = 24 * 60 * 60 * 1000;
 
-/* Feature */
-//用戶帳號申請
-/*
-1.{username, email, password, confirmPassword}
-*/
+  if (!process.env.COOKIE_EXPIRES_IN)
+    throw new Error('dotenv 沒有設置JWT_COOKIE_EXPIRES_IN');
 
-/* Feature */
+  // cookie(name,token,{..options})
+  res.cookie('jwt', token, {
+    expires: new Date(
+      Date.now() + parseInt(process.env.COOKIE_EXPIRES_IN) * oneDayMillisecond
+    ),
+    httpOnly: true,
+  });
 
-//
-exports.singUp = catchAsync(
+  res.status(statusCode).json({
+    status: 'success',
+    token,
+    data: {
+      user,
+    },
+  });
+};
+
+export const protect = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    //catch
-    const user = await User.create(req.body);
+    console.log('protect');
+    next();
+  }
+);
+
+export const singUp = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { name, email, password, confirmPassword } = req.body;
+    const user = await User.create({
+      name,
+      email,
+      password,
+      confirmPassword,
+    });
+
     if (!user) return next(new AppError('請重新確認填寫訊息', 404));
 
+    sendJwtToClient(user, 201, req, res);
+  }
+);
+
+export const login = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return next(
+        new AppError('登入失敗！， 請從新確認 email 或 password', 400)
+      );
+    }
+
+    const user = await User.findOne({ email }).select('+password');
+
+    if (!user)
+      return next(
+        new AppError('登入失敗！， 請從新確認 email 或 password', 404)
+      );
+
+    const isCorrectPassword = await user.passwordCompare(
+      password,
+      user.password
+    );
+
+    if (isCorrectPassword) {
+      sendJwtToClient(user, 201, req, res);
+    } else {
+      return next(
+        new AppError('登入失敗！， 請從新確認 email 或 password', 400)
+      );
+    }
+  }
+);
+
+export const forgetPassword = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    //need email API
     res.status(200).json({
-      result: {
-        // data,
-        user,
-      },
+      status: 'success',
+      message: '此路由功能建立中..',
     });
   }
 );

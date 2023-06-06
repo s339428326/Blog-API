@@ -1,10 +1,11 @@
-const express = require('express');
+import express from 'express';
 
-const authController = require('../controllers/authControllers');
+import { singUp, login, protect } from '../controllers/authControllers';
 
 const router = express.Router();
 
 //auth
-router.post('/singup', authController.singUp);
+router.post('/singup', singUp);
+router.post('/login', login);
 
-module.exports = router;
+export default router;

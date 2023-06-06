@@ -1,18 +1,15 @@
-import dotenv from 'dotenv';
 import mongoose from 'mongoose';
-import { types } from 'util';
 
-const app = require('./app');
+import dotenv from 'dotenv';
+import app from './app';
 
-dotenv.config({ path: './config.env' });
+if (process.env.NODE_ENV === 'development') {
+  dotenv.config({ path: './.env.development' });
+} else {
+  dotenv.config();
+}
 
-mongoose.connect(
-  `${
-    process.env.NODE_ENV === 'development'
-      ? process.env.LOCAL_DATABASE
-      : process.env.SERVER_DATABASE
-  }`
-);
+mongoose.connect(`${process.env.DATABASE}`);
 
 const db = mongoose.connection;
 
@@ -21,7 +18,7 @@ db.once('open', () => console.log('mongoDB 連結成功！'));
 
 const server = app.listen(process.env.PORT || 5501, () => {
   console.log(process.env.NODE_ENV);
-  console.log(`Start! Port:${process.env?.PORT}`);
+  console.log(`Start! Port:${process.env.PORT}`);
 });
 
 //發生全域的連線錯誤
