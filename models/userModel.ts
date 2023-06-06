@@ -1,13 +1,17 @@
 import mongoose from 'mongoose';
 import validator from 'validator';
 
-// import bcrypt from 'bcrypt';
+import bcrypt from 'bcrypt';
 
-interface IUser {
+export interface IUser extends Document {
+  id: string;
   name: string;
   email: string;
   password: string;
-  confirmPassword: string | undefined;
+  confirmPassword?: string;
+  role: string;
+  active: boolean;
+  passwordCompare: (arg0: string, arg1: string) => boolean;
 }
 
 const userSchema = new mongoose.Schema<IUser>(
@@ -15,11 +19,13 @@ const userSchema = new mongoose.Schema<IUser>(
     name: {
       type: String,
       trim: true,
+      unique: true,
       required: [true, '用戶必須含有名稱'],
     },
     email: {
       type: String,
       trim: true,
+      unique: true,
       required: [true, '用戶必須含有名稱'],
       validate: [validator.isEmail, '請輸入有效信箱'],
     },
@@ -43,6 +49,20 @@ const userSchema = new mongoose.Schema<IUser>(
         '請確認密碼輸入是否相同',
       ],
     },
+    role: {
+      type: String,
+      default: 'user',
+      enum: {
+        values: ['user', 'admin'],
+        message: '出現錯誤權限用戶',
+      },
+      required: true,
+    },
+    active: {
+      type: Boolean,
+      default: true,
+      select: false,
+    },
   },
   {
     toJSON: { virtuals: true },
@@ -50,11 +70,22 @@ const userSchema = new mongoose.Schema<IUser>(
   }
 );
 
-userSchema.pre<IUser>('save', function (next) {
-  console.log(this.password);
-  this.confirmPassword = undefined; // 設定undefined 不會紀錄於mongoDB
+//hash password
+userSchema.pre('save', async function (next) {
+  const user = this; // Bypass ts check this keyword
+  if (!user.isModified('password')) return next();
+
+  user.password = await bcrypt.hash(user.password, 12);
+  user.confirmPassword = undefined; // 設定undefined 不會紀錄於mongoDB
   next();
 });
+
+userSchema.methods.passwordCompare = async (
+  currentPassword: string,
+  dateBasePassword: string
+) => {
+  return await bcrypt.compare(currentPassword, dateBasePassword);
+};
 
 const User = mongoose.model<IUser>('User', userSchema);
 
