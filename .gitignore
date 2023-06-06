@@ -4,3 +4,6 @@ DateBase-Model.png
 package-lock.json
 .env
 .env.development
+
+
+dist

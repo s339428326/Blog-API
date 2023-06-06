@@ -6,17 +6,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.forgetPassword = exports.login = exports.singUp = exports.protect = void 0;
 const AppError_1 = __importDefault(require("../utils/AppError"));
 const catchAsync_1 = __importDefault(require("../utils/catchAsync"));
+const JWTHandler_1 = require("../utils/JWTHandler");
 const userModel_1 = __importDefault(require("../models/userModel"));
-const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
-const singToken = (id) => {
-    if (!process.env.JWT_SECRET)
-        throw new Error('dotenv 沒有設置JWT_SECRET');
-    return jsonwebtoken_1.default.sign({ id }, process.env.JWT_SECRET, {
-        expiresIn: process.env.JWT_EXPIRES_IN,
-    });
-};
 const sendJwtToClient = (user, statusCode, req, res) => {
-    const token = singToken(user.id);
+    const token = (0, JWTHandler_1.singToken)(user.id);
     const oneDayMillisecond = 24 * 60 * 60 * 1000;
     if (!process.env.COOKIE_EXPIRES_IN)
         throw new Error('dotenv 沒有設置JWT_COOKIE_EXPIRES_IN');
