@@ -5,6 +5,7 @@ import helmet from 'helmet';
 import limiter from './utils/limiter';
 
 import userRouter from './Routes/userRoutes';
+import articleRouter from './Routes/articleRoutes';
 
 import globeErrorHandler from './controllers/errorControllers';
 
@@ -23,6 +24,7 @@ app.use(limiter);
 
 //router
 app.use('/api/v1/users', userRouter);
+app.use('/api/v1/article', articleRouter);
 
 //Error
 app.use(globeErrorHandler);

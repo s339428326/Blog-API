@@ -20,7 +20,6 @@ const sendError: ErrorRequestHandler = (err, req, res, next) => {
 };
 
 const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
-  console.log('err hd:', process.env.NODE_ENV, err);
   //status and statusCode checker
   err.status = err.status || 'error';
   err.statusCode = err.statusCode || 500;
@@ -38,6 +37,32 @@ const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
       //例外錯誤
       //mongoose schema validation error
       if (err.name === 'ValidationError') {
+        //schema fields duplicate key
+        if (err._message === 'User validation failed') {
+          const errorDuplicateArr: {
+            name: string;
+            message: string;
+          }[] = [];
+
+          Object.entries(err.errors).forEach(
+            ([name, errorObj]: [string, any]) => {
+              errorDuplicateArr.push({
+                name,
+                message: errorObj.properties.message,
+              });
+            }
+          );
+
+          return res.status(401).json({
+            status: 'fail',
+            message: '填寫表單中有錯誤請確認',
+            data: {
+              data: errorDuplicateArr,
+            },
+          });
+        }
+
+        //normal validation error
         return sendError(
           new AppError(`${err.message}`.split(': ')[2], 404),
           req,
@@ -55,6 +80,7 @@ const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
         );
       }
 
+      // res.status(401).json({ message: '這是測試用', err });
       sendError(err, req, res, next);
 
       break;
