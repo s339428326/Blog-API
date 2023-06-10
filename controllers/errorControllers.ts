@@ -79,7 +79,12 @@ const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
           next
         );
       }
-
+      //id schema id錯誤
+      if (err.kind === 'ObjectId' && err.name === 'CastError') {
+        return res
+          .status(403)
+          .json({ status: 'error', message: '請確認 /:id 是否正確' });
+      }
       // res.status(401).json({ message: '這是測試用', err });
       sendError(err, req, res, next);
 

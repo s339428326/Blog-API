@@ -7,12 +7,11 @@ import mongoose, {
 } from 'mongoose';
 import { IUser } from './userModel';
 
-interface IArticle extends Document {
-  //設計 文章 fields
+export interface IArticle extends Document {
   title: string;
   content: string;
   creator: PopulatedDoc<Document<ObjectId> & IUser>; //Model Pop
-  createAt: Schema.Types.Date;
+  createAt?: Schema.Types.Date;
 }
 
 const articleSchema = new mongoose.Schema<IArticle>({
@@ -38,7 +37,10 @@ const articleSchema = new mongoose.Schema<IArticle>({
 
 articleSchema.pre<Query<IArticle, IArticle>>(/^find/, function (next) {
   const article = this;
-  article.populate('creator');
+  article.populate({
+    path: 'creator',
+    select: 'name email role',
+  });
 
   next();
 });

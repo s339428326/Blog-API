@@ -1,18 +1,15 @@
-import { NextFunction, Response, Request } from 'express';
-import Article from '../models/articleModel';
-import AppError from '../utils/AppError';
-import catchAsync from '../utils/catchAsync';
+import Article, { IArticle } from '../models/articleModel';
 
-export const getAllArticle = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
-    const article = await Article.find();
-    if (!article) return next(new AppError('找不到任何文章', 404));
+import {
+  createHandler,
+  readHandler,
+  readAllHandler,
+  updateHandler,
+  deleteHandler,
+} from './handlerFactory';
 
-    res.status(200).json({
-      status: 'success',
-      data: {
-        article,
-      },
-    });
-  }
-);
+export const createArticle = createHandler(Article);
+export const getAllArticle = readAllHandler(Article);
+export const getOneArticle = readHandler(Article);
+export const updateArticle = updateHandler(Article);
+export const deleteArticle = deleteHandler(Article);
