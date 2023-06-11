@@ -4,8 +4,8 @@ import cors from 'cors';
 import helmet from 'helmet';
 import limiter from './utils/limiter';
 
-import userRouter from './Routes/userRoutes';
-import articleRouter from './Routes/articleRoutes';
+import userRouter from './routes/userRoutes';
+import articleRouter from './routes/articleRoutes';
 
 import globeErrorHandler from './controllers/errorControllers';
 

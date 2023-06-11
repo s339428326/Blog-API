@@ -14,26 +14,31 @@ export interface IArticle extends Document {
   createAt?: Schema.Types.Date;
 }
 
-const articleSchema = new mongoose.Schema<IArticle>({
-  title: {
-    type: String,
-    trim: true,
-    required: true,
+const articleSchema = new mongoose.Schema<IArticle>(
+  {
+    title: {
+      type: String,
+      trim: true,
+      required: true,
+    },
+    content: {
+      type: String,
+      required: true,
+    },
+    creator: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+    },
+    createAt: {
+      type: Date,
+      required: true,
+      default: Date.now(),
+    },
   },
-  content: {
-    type: String,
-    required: true,
-  },
-  creator: {
-    type: Schema.Types.ObjectId,
-    ref: 'User',
-  },
-  createAt: {
-    type: Date,
-    required: true,
-    default: Date.now(),
-  },
-});
+  {
+    strict: true,
+  }
+);
 
 articleSchema.pre<Query<IArticle, IArticle>>(/^find/, function (next) {
   const article = this;
